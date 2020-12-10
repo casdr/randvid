@@ -41,6 +41,8 @@ let sendData = (data) => {
   socket.emit('data', data);
 };
 
+socket.emit('join_wait', {'name': 'Cas'});
+
 let pc;
 let localStream;
 let remoteStreamElement = document.querySelector('#remoteStream');
