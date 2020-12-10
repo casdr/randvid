@@ -118,7 +118,10 @@ let handleSignalingData = (data) => {
       pc.addIceCandidate(new RTCIceCandidate(data.candidate));
       break;
     case 'disconnect':
-      pc.close();
+      if (pc) {
+        pc.close();
+      }
+      break;
   }
 };
 
