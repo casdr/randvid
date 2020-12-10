@@ -36,6 +36,8 @@ let sendData = (data) => {
   socket.emit('data', data);
 };
 
+socket.emit('join_wait', {'name': 'Cas'});
+
 let pc;
 let localStream;
 let remoteStreamElement = document.querySelector('#remoteStream');
@@ -65,10 +67,12 @@ let createPeerConnection = () => {
 
 let sendOffer = () => {
   console.log('Send offer');
-  pc.createOffer().then(
-    setAndSendLocalDescription,
-    (error) => { console.error('Send offer failed: ', error); }
-  );
+  setTimeout(function () {
+    pc.createOffer().then(
+      setAndSendLocalDescription,
+      (error) => { console.error('Send offer failed: ', error); }
+    );
+  }, 1500);
 };
 
 let sendAnswer = () => {
@@ -113,6 +117,8 @@ let handleSignalingData = (data) => {
     case 'candidate':
       pc.addIceCandidate(new RTCIceCandidate(data.candidate));
       break;
+    case 'disconnect':
+      pc.close();
   }
 };
 
