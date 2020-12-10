@@ -32,6 +32,10 @@ socket.on('ready', () => {
   sendOffer();
 });
 
+socket.on('next_round', function(seconds) {
+  console.log(seconds);
+});
+
 let sendData = (data) => {
   socket.emit('data', data);
 };
@@ -72,7 +76,7 @@ let sendOffer = () => {
       setAndSendLocalDescription,
       (error) => { console.error('Send offer failed: ', error); }
     );
-  }, 1500);
+  }, 500);
 };
 
 let sendAnswer = () => {
