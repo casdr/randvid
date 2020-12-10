@@ -14,7 +14,7 @@ class Omegle20:
         self.log.basicConfig(level=logging.DEBUG)
 
         self.users = {}
-        self.next_round = datetime.datetime.now()
+        self.next_time = datetime.datetime.now()
 
         self.sio = socketio.AsyncServer(async_mode='aiohttp', cors_allowed_origins='*')
         self.app = web.Application()
@@ -29,7 +29,7 @@ class Omegle20:
         self.sio.on('join_wait')(self.join_wait)
         self.sio.on('data')(self.data)
 
-        self.timer = TimerThread(self, 300)
+        self.timer = TimerThread(self, 10)
         self.timer.start()
 
         web.run_app(self.app, port=9999)
@@ -60,16 +60,16 @@ class Omegle20:
             await self.next_round()
     
     async def send_time(self):
-        seconds = (self.next_round - datetime.datetime.now()).total_seconds()
+        seconds = (self.next_time - datetime.datetime.now()).total_seconds()
         await self.sio.emit('next_round', seconds)
     
     async def clear_rooms(self):
         for sid in self.users.keys():
             if self.users[sid]['room']:
                 self.sio.leave_room(sid, self.users[sid]['room'])
+                await self.sio.emit('data', {'type': 'disconnect'})
             self.users[sid]['room'] = None
             self.users[sid]['no_match'] = False
-        await self.sio.emit('data', {'type': 'disconnect'})
     
     async def match_users(self):
         users = []
@@ -94,7 +94,7 @@ class Omegle20:
 
             await self.sio.emit('ready', room=room_name, skip_sid=sid)
 
-    async def next_round(self, next_time):
+    async def next_round(self):
         await self.clear_rooms()
         await self.match_users()
         await self.send_time()
@@ -115,7 +115,7 @@ class TimerThread(threading.Thread):
     
     def run(self):
         while True:
-            self.app.next_round = datetime.datetime.now() + datetime.timedelta(seconds=self.seconds)
+            self.app.next_time = datetime.datetime.now() + datetime.timedelta(seconds=self.seconds)
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             loop.run_until_complete(self.app.next_round())
