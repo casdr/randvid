@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 aiohttp = "*"
 python-socketio = "*"
+async-timeout = "*"
 
 [requires]
 python_version = "3.9"
