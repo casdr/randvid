@@ -29,7 +29,7 @@ class Omegle20:
         self.sio.on('join_wait')(self.join_wait)
         self.sio.on('data')(self.data)
 
-        self.timer = TimerThread(self, 10)
+        self.timer = TimerThread(self, 40)
         self.timer.start()
 
         web.run_app(self.app, port=9999)
@@ -56,7 +56,7 @@ class Omegle20:
         self.users[sid]['name'] = data['name']
         self.users[sid]['joined'] = True
 
-        if len(self.users) > 1:
+        if len(self.users) == 2:
             await self.next_round()
     
     async def send_time(self):
@@ -92,7 +92,9 @@ class Omegle20:
             self.sio.enter_room(first, room_name)
             self.sio.enter_room(second, room_name)
 
-            await self.sio.emit('ready', room=room_name, skip_sid=sid)
+            await self.sio.emit('ready', room=room_name)
+            await self.sio.emit('remote_name', self.users[first]['name'], room=room_name, skip_sid=first)
+            await self.sio.emit('remote_name', self.users[second]['name'], room=room_name, skip_sid=second)
 
     async def next_round(self):
         await self.clear_rooms()
