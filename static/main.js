@@ -21,6 +21,8 @@ const PC_CONFIG = {
 
 let socket = io(SIGNALING_SERVER_URL, { autoConnect: false });
 
+let countdownSeconds = 0;
+
 socket.on('data', (data) => {
   console.log('Data received: ', data);
   handleSignalingData(data);
@@ -31,6 +33,9 @@ socket.on('ready', () => {
   createPeerConnection();
   sendOffer();
 });
+
+socket.emit('join_wait', {'name': 'Cas'});
+
 
 let sendData = (data) => {
   socket.emit('data', data);
@@ -70,10 +75,12 @@ let createPeerConnection = () => {
 
 let sendOffer = () => {
   console.log('Send offer');
-  pc.createOffer().then(
-    setAndSendLocalDescription,
-    (error) => { console.error('Send offer failed: ', error); }
-  );
+  setTimeout(function () {
+    pc.createOffer().then(
+      setAndSendLocalDescription,
+      (error) => { console.error('Send offer failed: ', error); }
+    );
+  }, 500);
 };
 
 let sendAnswer = () => {
@@ -119,6 +126,11 @@ let handleSignalingData = (data) => {
     case 'candidate':
       pc.addIceCandidate(new RTCIceCandidate(data.candidate));
       break;
+    case 'disconnect':
+      if (pc) {
+        pc.close();
+      }
+      break;
   }
 };
 // Start connection
@@ -152,5 +164,17 @@ document.getElementById('turnOffCam').onclick = function () {
 }
 
 socket.on('next_round', function(seconds) {
-  console.log(seconds);
+  countdownSeconds = parseInt(seconds);
 });
+
+socket.on('remote_name', function(name) {
+  document.getElementById('name').innerHTML = name
+});
+
+setInterval(function () {
+  countdownSeconds--;
+  if (countdownSeconds < 0) {
+    countdownSeconds = 0;
+  }
+  document.getElementById('countdown').innerHTML = countdownSeconds
+}, 1000);

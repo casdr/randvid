@@ -5,11 +5,13 @@
     <title>WebRTC working example</title>
 </head>
 <body>
+    <h1 id="name"></h1>
     <video id="remoteStream" autoplay playsinline></video>
     <button id="muteRemote">Mute</button>
     <video id="localStream" autoplay playsinline></video>
     <button id="muteLocal">Mute</button>
     <button id="turnOffCam">Turn off Cam</button>
+    <p id="countdown"></p>
     <script src="socket.io.js"></script>
     <script src="main.js"></script>
 </body>
