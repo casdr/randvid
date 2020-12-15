@@ -24,7 +24,7 @@ let socket = io(SIGNALING_SERVER_URL, { autoConnect: false });
 let countdownSeconds = 0;
 
 socket.on('data', (data) => {
-  console.log('Data received: ',data);
+  console.log('Data received: ', data);
   handleSignalingData(data);
 });
 
@@ -34,7 +34,7 @@ socket.on('ready', () => {
   sendOffer();
 });
 
-socket.emit('join_wait', {'name': 'Cas'});
+socket.emit('join_wait', { 'name': 'Cas' });
 
 
 let sendData = (data) => {
@@ -45,11 +45,16 @@ let pc;
 let localStream;
 let remoteStreamElement = document.querySelector('#remoteStream');
 
+
 let getLocalStream = () => {
+  displayMuteButton()
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })
     .then((stream) => {
       console.log('Stream found');
-      localStream = stream;      socket.connect();
+      const localVid = document.getElementById('localStream');
+      localStream = stream; socket.connect();
+      localVid.muted = true;
+      localVid.srcObject = localStream;
     })
     .catch(error => {
       console.error('Stream not found: ', error);
@@ -105,6 +110,7 @@ let onIceCandidate = (event) => {
 let onAddStream = (event) => {
   console.log('Add stream');
   remoteStreamElement.srcObject = event.stream;
+  displayMuteButton()
 };
 
 let handleSignalingData = (data) => {
@@ -133,36 +139,38 @@ getLocalStream();
 
 document.getElementById('muteLocal').onclick = function () {
   localStream.getAudioTracks()[0].enabled = !(localStream.getAudioTracks()[0].enabled);
-  if (localStream.getAudioTracks()[0].enabled){
+  if (localStream.getAudioTracks()[0].enabled) {
     document.getElementById('muteLocal').innerHTML = "Mute"
-  }else{
+  } else {
     document.getElementById('muteLocal').innerHTML = "Unmute"
   }
 }
 
 document.getElementById('muteRemote').onclick = function () {
   pc.getRemoteStreams()[0].getAudioTracks()[0].enabled = !(pc.getRemoteStreams()[0].getAudioTracks()[0].enabled);
-  if (pc.getRemoteStreams()[0].getAudioTracks()[0].enabled){
+  if (pc.getRemoteStreams()[0].getAudioTracks()[0].enabled) {
     document.getElementById('muteRemote').innerHTML = "Mute"
-  }else{
+  } else {
     document.getElementById('muteRemote').innerHTML = "Unmute"
   }
 }
 
+
+
 document.getElementById('turnOffCam').onclick = function () {
-    localStream.getVideoTracks()[0].enabled = !(localStream.getVideoTracks()[0].enabled);
-    if (localStream.getVideoTracks()[0].enabled){
-      document.getElementById('turnOffCam').innerHTML = "Turn off camera"
-    }else{
-      document.getElementById('turnOffCam').innerHTML = "Turn on camera"
-    }
+  localStream.getVideoTracks()[0].enabled = !(localStream.getVideoTracks()[0].enabled);
+  if (localStream.getVideoTracks()[0].enabled) {
+    document.getElementById('turnOffCam').innerHTML = "Turn off camera"
+  } else {
+    document.getElementById('turnOffCam').innerHTML = "Turn on camera"
+  }
 }
 
-socket.on('next_round', function(seconds) {
+socket.on('next_round', function (seconds) {
   countdownSeconds = parseInt(seconds);
 });
 
-socket.on('remote_name', function(name) {
+socket.on('remote_name', function (name) {
   document.getElementById('name').innerHTML = name
 });
 
@@ -173,3 +181,12 @@ setInterval(function () {
   }
   document.getElementById('countdown').innerHTML = countdownSeconds
 }, 1000);
+
+function displayMuteButton() {
+  if (remoteStreamElement.srcObject == null) {
+    document.getElementById("muteRemote").style.visibility = "hidden";
+  } else {
+    document.getElementById("muteRemote").style.visibility = "visible";
+    
+  }
+}

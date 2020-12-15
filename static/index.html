@@ -1,23 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>WebRTC working example</title>
+    <title>Omegle2.0</title>
+    <style>
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto auto;
+        }
+
+        .grid-item {
+            padding: 5px;
+        }
+
+        button {
+            background-color: white;
+            /* white */
+            border: none;
+            color: black;
+            border: 2px solid #CC231E;
+            padding: 16px 32px;
+            text-align: center;
+            text-decoration: none;
+            display: inline;
+            font-size: 16px;
+            margin: 4px 2px;
+            transition-duration: 0.4s;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #CC231E;
+            color: white;
+        }
+
+        .position-buttons {
+            display: block;
+        }
+
+        .video {
+            border: 40px solid transparent;
+            border-image: url("christmas border.png") 10% stretch;
+        }
+    </style>
 </head>
+
 <body>
-    <h1 id="name"></h1>
-    <video id="remoteStream" autoplay playsinline></video>
-<<<<<<< HEAD
+    <div id="loginView">
 
-    <button id="muteRemote">Mute</button>
-    <video id="localStream" autoplay playsinline></video>
-    <button id="muteLocal">Mute</button>
-    <button id="turnOffCam">Turn off Cam</button>
-    <p id="countdown"></p>
+    </div>
 
-=======
->>>>>>> parent of 971a6d1... Co-authored-by: Luuk Jansen (student) <L.Jansen22@student.han.nl>
+    <div id="streamView">
+        <h1 id="name"></h1>
+        <div class="grid-container">
+            <div class="grid-item">
+                <video id="remoteStream" class="video" autoplay playsinline></video>
+                <div class="position-buttons">
+                    <button id="muteRemote">Mute</button>
+                </div>
+            </div>
+            <div class="grid-item">
+                <video id="localStream" class="video" autoplay playsinline></video>
+                <div class="position-buttons">
+                    <button id="muteLocal">Mute</button>
+                    <button id="turnOffCam">Turn off Cam</button>
+                </div>
+            </div>
+        </div>
+        <p id="countdown"></p>
+    </div>
+
     <script src="socket.io.js"></script>
     <script src="main.js"></script>
 </body>
+
 </html>
