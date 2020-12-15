@@ -24,7 +24,7 @@ let socket = io(SIGNALING_SERVER_URL, { autoConnect: false });
 let countdownSeconds = 0;
 
 socket.on('data', (data) => {
-  console.log('Data received: ', data);
+  console.log('Data received: ',data);
   handleSignalingData(data);
 });
 
@@ -49,10 +49,7 @@ let getLocalStream = () => {
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })
     .then((stream) => {
       console.log('Stream found');
-      const localVid = document.getElementById('localStream');
-      localStream = stream; socket.connect();
-      localVid.muted = true;
-      localVid.srcObject = localStream;
+      localStream = stream;      socket.connect();
     })
     .catch(error => {
       console.error('Stream not found: ', error);
@@ -65,13 +62,11 @@ let createPeerConnection = () => {
     pc.onicecandidate = onIceCandidate;
     pc.onaddstream = onAddStream;
     pc.addStream(localStream);
-    console.log(pc)
     console.log('PeerConnection created');
   } catch (error) {
     console.error('PeerConnection failed: ', error);
   }
 };
-
 
 let sendOffer = () => {
   console.log('Send offer');
@@ -112,7 +107,6 @@ let onAddStream = (event) => {
   remoteStreamElement.srcObject = event.stream;
 };
 
-
 let handleSignalingData = (data) => {
   switch (data.type) {
     case 'offer':
@@ -133,6 +127,7 @@ let handleSignalingData = (data) => {
       break;
   }
 };
+
 // Start connection
 getLocalStream();
 
