@@ -29,8 +29,13 @@ class Omegle20:
         self.sio.on('join_wait')(self.join_wait)
         self.sio.on('data')(self.data)
 
-        self.timer = TimerThread(self, 40)
-        self.timer.start()
+
+        try:
+            # self.timer = TimerThread(self, 40)
+            # self.timer.start()
+            pass
+        except KeyboardInterrupt:
+            sys.exit(1)
 
         web.run_app(self.app, port=9999)
     
@@ -92,7 +97,7 @@ class Omegle20:
             self.sio.enter_room(first, room_name)
             self.sio.enter_room(second, room_name)
 
-            await self.sio.emit('ready', room=room_name)
+            await self.sio.emit('ready', room=room_name, skip_sid=second)
             await self.sio.emit('remote_name', self.users[first]['name'], room=room_name, skip_sid=first)
             await self.sio.emit('remote_name', self.users[second]['name'], room=room_name, skip_sid=second)
 
