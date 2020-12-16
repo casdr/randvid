@@ -23,6 +23,16 @@ let socket = io(SIGNALING_SERVER_URL, { autoConnect: false });
 
 let countdownSeconds = 0;
 
+$('#joinForm').submit(function (ev) {
+  ev.preventDefault();
+  const name = $('#username').val();
+  if (name) {
+    socket.emit('join_wait', {'name': name});
+    $('#loginView').hide();
+    $('#streamView').show();
+  }
+})
+
 socket.on('data', (data) => {
   console.log('Data received: ', data);
   handleSignalingData(data);
@@ -34,20 +44,17 @@ socket.on('ready', () => {
   sendOffer();
 });
 
-socket.emit('join_wait', {'name': 'Cas'});
-
 
 let sendData = (data) => {
   socket.emit('data', data);
 };
-
-socket.emit('join_wait', {'name': 'Cas'});
 
 let pc;
 let localStream;
 let remoteStreamElement = document.querySelector('#remoteStream');
 
 let getLocalStream = () => {
+  displayMuteButton()
   navigator.mediaDevices.getUserMedia({ audio: true, video: true })
     .then((stream) => {
       console.log('Stream found');
@@ -112,6 +119,7 @@ let onIceCandidate = (event) => {
 let onAddStream = (event) => {
   console.log('Add stream');
   remoteStreamElement.srcObject = event.stream;
+  displayMuteButton()
 };
 
 
@@ -165,13 +173,20 @@ document.getElementById('turnOffCam').onclick = function () {
     }
 }
 
-socket.on('next_round', function(seconds) {
+socket.on('next_time', function(seconds) {
   countdownSeconds = parseInt(seconds);
 });
 
 socket.on('remote_name', function(name) {
   document.getElementById('name').innerHTML = name
+  $('#noMatch').hide();
+  $('#matched').show();
 });
+
+socket.on('no_match', function() {
+  $('#noMatch').show();
+  $('#matched').hide();
+})
 
 setInterval(function () {
   countdownSeconds--;
@@ -180,3 +195,12 @@ setInterval(function () {
   }
   document.getElementById('countdown').innerHTML = countdownSeconds
 }, 1000);
+
+function displayMuteButton() {
+  if (remoteStreamElement.srcObject == null) {
+    document.getElementById("muteRemote").style.visibility = "hidden";
+  } else {
+    document.getElementById("muteRemote").style.visibility = "visible";
+
+  }
+} 
